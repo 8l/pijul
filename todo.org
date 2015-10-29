@@ -1,0 +1,450 @@
+* Todo
+
+** Avant d'avoir darcs
+
+*** DONE add, remove
+    CLOSED: [2015-08-21 ven. 13:40]
+
+
+*** DONE record
+    CLOSED: [2015-08-21 ven. 13:39]
+
+*** DONE unsafe apply
+    CLOSED: [2015-08-21 ven. 13:39]
+
+
+*** DONE rollback
+    CLOSED: [2015-08-21 ven. 14:45]
+
+
+*** DONE propager les suppressions pour ne pas passer par les arêtes supprimées
+    CLOSED: [2015-08-21 ven. 17:01]
+
+*** DONE base des patchs
+    CLOSED: [2015-08-21 ven. 17:46]
+
+*** DONE unapply : dépendances
+    CLOSED: [2015-08-22 sam. 22:36]
+*** DONE unapply : fichiers.
+    CLOSED: [2015-08-23 dim. 21:55]
+
+    C'est plus compliqué que ça en a l'air : si en faisant ça, on restaure un conflit, on fait comment?
+    Par exemple, si ce patch avait supprimé un fichier, et qu'on en a réintroduit un avec le même nom depuis, le dépôt peut ne pas avoir l'air en conflit, mais la table des fichiers l'est.
+
+
+    On peut régler tout avec des dépendances : on pseudo-record le patch actuel, et on peut unrecorder des trucs sans dépendances, c'est-à-dire qui commutent.
+
+
+*** DONE dépendances entre patchs
+    CLOSED: [2015-08-23 dim. 22:07]
+
+
+*** DONE mv: test
+    CLOSED: [2015-08-23 dim. 22:38]
+
+
+*** DONE unsafe_output_repository
+    CLOSED: [2015-08-24 lun. 06:49]
+
+
+
+
+*** DONE Actualiser les pseudo-liens quand on supprime le lien qui les a introduits.
+    CLOSED: [2015-08-24 lun. 11:16]
+    Ça a l'air d'être pareil que quand on supprime une ligne et qu'on veut raccomoder ses parents et ses enfants
+
+*** DONE Unrecord: fichiers
+    CLOSED: [2015-08-25 mar. 16:22]
+    unrecord, puis mettre à jour les fichiers traqués en les regardant un par un et en changeant ceux qui pointent sur un patch qui n'existe pas (bien pour les fichiers insérés).
+    Pour les fichiers supprimés, apply devrait retourner une liste des fichiers insérés par un patch dans le dépôt.
+
+    Ok, il n'y a pas de différence entre un nouveau fichier inséré par un patch normal et un fichier restauré par unrecord, du point de vue d'un patch.
+
+
+
+*** DONE changements non recordés
+    CLOSED: [2015-08-25 mar. 17:05]
+
+    1. Créer une transaction T, appliquer des patchs.
+    2. Commit T
+    3. Créer une transaction U, appliquer les changements non-recordés.
+    4. unsafe_output_repository
+    5. Annuler U
+
+*** DONE Conflits de fichiers
+    CLOSED: [2015-08-26 mer. 11:37]
+
+**** DONE Problème potentiel avec unrecord.
+     CLOSED: [2015-08-26 mer. 10:12]
+
+    P : +a (fichier)
+    Q : -a (fichier)
+    R : +a (fichier)
+
+    Pijul autorise d'unrecorder Q sans unrecorder R. On se retrouve avec:
+    - un "vieux a" à supprimer.
+    - un jeune a, marqué normal.
+
+    Si maintenant on unrecord P, on doit se retrouver avec seulement le jeune a :
+    Unrecord devrait vérifier que le fichier qu'il voudrait insérer en le marquant comme "+" n'est pas marqué pour suppression dans le dépôt. Si c'est le cas, il supprime tout.
+
+    S'il est marqué comme "+p", et qu'ensuite on a "-p", le "-p" s'accompagne en principe d'autre chose si c'est un déplacement, donc pas de problème.
+
+
+    Darcs refuse d'unrecorder Q sans R, puisqu'ils ne commutent pas. Pijul est plus souple que darcs !
+
+
+
+*** DONE Permettre à record d'être interactif / changer le format de diff.
+    CLOSED: [2015-08-27 jeu. 14:48]
+
+    On peut par exemple envoyer à diff la même chose qu'output_repository écrirait dans les fichiers, ça permet même de garder une trace des lignes en conflit.
+
+
+
+**** DONE Mettre les fichiers à jour
+     CLOSED: [2015-08-27 jeu. 15:27]
+
+**** DONE Rollback
+     CLOSED: [2015-08-28 ven. 11:17]
+
+**** DONE Unrecord
+     CLOSED: [2015-08-28 ven. 18:01]
+
+
+**** DONE Raccommodage de unsafe_apply
+     CLOSED: [2015-08-28 ven. 16:01]
+
+
+*** DONE Changement d'encodage des arêtes
+    CLOSED: [2015-08-28 ven. 18:15]
+
+*** DONE Conflits de suppressions
+    CLOSED: [2015-08-28 ven. 18:28]
+
+    Les lignes à moitié supprimées ne sont pas toujours marquées comme conflits.
+
+*** DONE Tester les dossiers
+    CLOSED: [2015-08-29 sam. 09:38]
+
+
+*** DONE changes (binaire)
+    CLOSED: [2015-08-30 dim. 10:24]
+
+    De toute façon, copier la base des patchs ou la sortir dans un fichier ne change pas grand chose, et ça simplifie vraiment les choses.
+
+*** DONE Chemins relatifs
+    CLOSED: [2015-09-03 jeu. 19:44]
+
+
+
+*** DONE Bug: mv des dossiers
+    CLOSED: [2015-09-09 mer. 15:53]
+
+    Pour l'instant, "tracked" contient des chemins complets. C'est un peu con, parce que ça force à tout renommer à chaque déplacement de dossier, ce qu'on ne ferait pas dans le patch.
+
+
+*** DONE Mise à jour des fichiers locaux supprimés (apply)
+    CLOSED: [2015-09-10 jeu. 14:11]
+
+    En fait il n'y avait rien à faire, mv et del s'occupent déjà de tout mettre à jour.
+    C'est différent de Plusfile, qui nécessite un numéro de patch.
+
+
+*** DONE Mise à jour dans un mv.
+    CLOSED: [2015-09-14 lun. 15:45]
+
+    Pour l'instant, seule l'addition de nodes vide (nouveaux fichiers) provoque une mise à jour.
+    On doit mettre à jour dans les autres cas.
+
+
+*** DONE Mise à jour des mouvements de fichiers non-locaux
+    CLOSED: [2015-09-14 lun. 19:21]
+
+    C'est un truc à faire au moment de output_repository:
+    - quand on record, ce morceau n'est pas un problème : immédiatement après un record, tout est synchronisé.
+
+
+
+
+*** DONE Bug: suppression de fichiers
+    CLOSED: [2015-09-14 lun. 19:21]
+
+    Quand on supprime des fichiers, ils restent dans le système de fichiers, même si pijul ne les suit plus (quand on les déplace, en particulier).
+
+
+
+
+*** DONE Supprimer les arêtes équivalentes dans rollback
+    CLOSED: [2015-09-15 mar. 11:42]
+
+    Est-ce que c'est correct? Est-ce que c'est possible?
+    Par exemple, pour un noeud en conflit de suppression.
+    Par exemple, s'il y a des pseudo-arêtes.
+
+
+
+
+*** DONE Patch name/author/date/...
+    CLOSED: [2015-09-15 mar. 12:04]
+
+    Est-ce que ça doit être lié aux branches ?
+
+    Non: ça empêcherait d'utiliser pijul comme darcs.
+
+
+*** DONE Branches
+    CLOSED: [2015-09-15 mar. 15:00]
+    Une branche est un ensemble de patchs.
+
+    Un ensemble de patchs peut être représenté par une union d'ensembles.
+
+    Branches:
+
+       ---C---
+      /       \
+    A ----B----D
+
+    Ici, on peut dire que la branche D est l'union de C et B, qui sont chacune l'union de A et de quelques patchs.
+
+    Calculer les différences peut même être rapide, avec cette représentation.
+
+**** DONE Record, push, pull, put, get qui dépendent des branches
+     CLOSED: [2015-09-15 mar. 15:00]
+
+
+*** DONE Suppressions de fichiers
+    CLOSED: [2015-09-17 jeu. 17:08]
+
+    Il y a deux failwith là-dessus.
+
+
+*** DONE Permissions
+    CLOSED: [2015-09-17 jeu. 17:16]
+
+    Recorder les permissions
+
+
+*** TODO Changement d'encodage du contenu
+
+    À utiliser avec MDB_DUPFIXED et MDB_GET_MULTIPLE.
+
+*** TODO Interface d'Unrecord
+
+    Vérifier que ça enlève les pseudo-arêtes.
+
+*** TODO amend-record
+
+**** Exemples d'amend-record à garder en tête :
+
+     - J'ai ajouté un binaire de 40G, avant de me rendre compte que ce n'était peut-être pas une bonne idée.
+
+**** Qu'est-ce qu'on faire si un patch rend p obsolète, et p rendait q obsolète ?
+
+     Ça veut dire que q a été édité deux fois: on veut effectivement rendre p et q obsolètes.
+
+**** Que doit faire unrecord d'un patch qui obsolète quelque chose ?
+
+     Le réappliquer: unrecord laisse le dépôt dans l'état où il était quand le patch n'était pas appliqué.
+
+**** Unification avec rebase
+
+     Pourquoi deux commandes séparées ?
+
+     Rebase doit propager tous les numéros des patchs édités dans les patchs suivants.
+
+
+*** TODO Commenter le code
+
+    Ce serait pas mal que quelqu'un (moi ?) puisse lire / prouver le code de Pijul.ml.
+
+    Peut-être après les tests ?
+
+
+
+** Plus que darcs ?
+*** TODO branch/switch
+
+*** TODO rebase
+
+    Rebase p peut être un amend-record de p et de tous les patchs qui en dépendent.
+
+** Tests
+
+*** TODO Push/pull
+
+*** TODO Conflits dans un fichier
+
+*** TODO Conflits de noms de fichiers
+
+*** TODO Conflits fichiers/dossier
+
+*** TODO Déplacements de fichiers compliqués
+
+    Qu'est-ce qui se passe si on fait "mv a b; mv c a" ?
+
+    Ou "rm a; mv b a" ?
+
+    Que fait darcs ?
+
+
+
+** Interface
+
+*** DONE Réorganisation du code + .mli
+    CLOSED: [2015-08-29 sam. 09:40]
+
+
+*** DONE Ligne de commande
+    CLOSED: [2015-08-30 dim. 10:33]
+
+
+*** DONE push, pull, get, put
+    CLOSED: [2015-08-30 dim. 10:56]
+**** DONE Avec rsync+apply local dans un premier temps.
+     CLOSED: [2015-08-30 dim. 10:33]
+**** DONE De toute façon, ssh a besoin d'une interface complète.
+     CLOSED: [2015-08-30 dim. 10:56]
+
+
+*** DONE pijul ls
+    CLOSED: [2015-08-31 lun. 10:38]
+
+
+*** TODO Filtres
+
+    Faire une fonction plus générale pour itérer non seulement dans les fichiers, mais aussi dans les patchs pour unrecord/rollback/push/pull (attention aux dépendances).
+
+
+*** TODO Regrouper, dans le filtre de record et revert, les opérations relatives à un même fichier.
+
+    Bien sûr, il n'est pas possible d'introduire un opérateur simple "movefile", parce que la relation (fichier,nom) n'est une fonction ni dans un sens, ni dans l'autre.
+
+*** TODO pijul changes
+
+*** TODO pijul diff/whatsnew
+
+    Peu différent de record -a sans filtre ni sauvegarde.
+
+** Compatibilité
+
+*** TODO Compatibilité windows
+
+    Presque tout a l'air bien, sauf que rsync (dans un pull ou un push) peut être en train de lire le fichier _pijul/changes pendant qu'apply l'écrit.
+
+    - Avec Unix, pas de problème, vu que tout est fait en hard links.
+    - Avec Windows, il faut probablement rajouter des locks. Comment on fait pour puller depuis un truc http ?
+
+
+    Vérifier tous les open_in/open_out.
+
+
+*** TODO Encodage des noms de fichiers
+
+    windows/ntfs utilise utf16, FAT (clefs USB) utilise
+
+    pijul doit utiliser utf8, bien entendu.
+
+
+
+
+** Bonus
+
+*** TODO État des lieux de l'interface C/Caml.
+
+    Qu'est-ce qu'on peut écrire en C ?
+
+
+*** TODO Push vers un serveur qui n'a pas pijul
+
+    Faire des locks avec ssh, rsync, push local, rsync, supprimer le lock.
+    On peut corrompre le dépôt distant, mais c'est mieux que rien.
+
+
+*** TODO Exceptions et traduction
+
+
+* Encodages
+
+Base et FS reportés sur https://pijul.org/Encoding
+Manque Patchs.
+
+** Base
+
+   Clef (t+sha1) -> valeur. t est le temps Unix, sur 4 octets, pour pouvoir trier les patchs gratuitement dans la base, et les ressortir dans l'ordre.
+
+   Les valeurs sont soit:
+   - "0c" où c est le contenu du noeud.
+   - "fba" où (f&8 <> 0), a est une clef et b un numéro de patch.
+     Toutes les arêtes vont dans les deux sens: si u a un lien vers v, u a un lien vers v dans l'autre sens.
+     Les bits de f sont:
+
+     16: contenu/arête
+     8: non-supprimé / supprimé
+     4: enfant/parent
+     2: normal/dossier
+     1: réel/pseudo
+
+     Est-ce que le bit "pseudo" est vraiment utile, maintenant qu'on a des tags de patch sur toutes les arêtes ?
+     À l'origine, il servait pour faciliter unrecord.
+
+** Correspondance fichiers/noeuds
+
+Il y a eu plusieurs version de ça.
+
+*** Tâches
+
+    1. renommage
+    2. suppression
+    3. addition
+    4. record: parcourir les fichiers
+    5. apply: mettre à jour la correspondance
+    6. conflits
+    7. compatibilité avec des systèmes de fichiers qui n'ont pas d'inodes
+
+
+*** Solution
+
+    - tous les inodes aléatoires, et une base de données de traduction vers les noeuds.
+
+      (a) inode+basename FS -> inode, (b) inode -> flag+noeud, (c) inode -> basename FS
+
+      1. renommage: modifier la structure des inodes (a)
+
+         Quand record voit un flag 1 dans (b), il sait qu'il faut ajouter des trucs ici. Ce qu'il ne sait pas (mais peut facilement trouver), c'est ses noms précédents -> on n'a qu'à le chercher quand on record.
+
+      2. suppression: remplacement dans (c), ça fait comme si le fichier lui-même avait été supprimé.
+      3. addition: ajout dans (a) sans ajout dans (b).
+      4. la liste de tous les inodes est (a). Pour chacun d'eux, on peut savoir en regardant dans (b) et (c) s'il est nouveau ou supprimé
+      5. apply: il suffit de mettre à jour (b) (et bien sûr (a) et (c) pour les ajouts non-locaux).
+      6. (a) peut contenir plusieurs bindings pour le même inode et basename.
+         (b) est injectif (donc bijectif)
+         (c) est injectif
+
+
+    - (a): tree, (b) inodes (c) filenames (=reverse trees)
+
+    - (b): flag=0 si cet inode est synchronisé avec les noeuds.
+      1 si cet inode est le nouveau "nom" de ce noeud.
+      2 si le noeud pointé par cet inode a été supprimé.
+
+    - On a l'air d'avoir aussi besoin d'une quatrième base (d) noeud -> inode
+      Pour pouvoir faire les opérations qui viennent d'autres patchs.
+
+
+** Patchs
+
+   Essentiellement une liste de hunks étiquetés par des opérations (diff/fileadd/filedel).
+
+   Les hunks sont de deux types :
+   - Plus: liste d'arêtes (a,b,c).
+     c est le contenu de b, quand il contient au moins un octet. Dans ce cas, le premier octet de c est 0.
+     il y a une arête de a vers b, dont le flag est écrit dans b: |a| = key_size, |b| = 1+key_size.
+
+     Le flag n'est pas modifié pendant la lecture, et une arête est insérée dans les deux directions, ce qui veut dire qu'on peut utiliser ce mécanisme pour insérer une arête b->a au lieu de a->b, en changeant le bit "parent".
+
+     On peut aussi inclure des pseudo-arêtes dans un patch, ce qui ne devrait pas perturber quoi que ce soit.
+
+   - Minus: liste d'arêtes à "supprimer", où supprimer veut dire:
+     si (a,fb) est à supprimer, on supprimer l'arête fb et on rajoute (change_deleted f)b, ce qui peut en réalité changer "dé-supprimer" une arête.
+
